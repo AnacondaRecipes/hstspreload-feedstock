@@ -1,5 +1,5 @@
 {% set name = "hstspreload" %}
-{% set version = "2020.6.30" %}
+{% set version = "2025.1.1" %}
 
 package:
   name: {{ name|lower }}
@@ -7,31 +7,44 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: 81225e82207ec316a774e5d130454327752853dfaf347b2bf4d21e524cc49efa
+  sha256: 346552a807b3a1762376de8ecce097544e7fcd64fb64231b4652da52f86fa6f1
 
 build:
-  noarch: python
   number: 0
-  script: {{ PYTHON }} -m pip install . -vv
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  skip: True  # [py<36]
 
 requirements:
   host:
-    - python >=3.6
+    - python
     - pip
+    - wheel
+    - setuptools
   run:
-    - python >=3.6
+    - python
 
 test:
   imports:
     - hstspreload
+  commands:
+    - pip check
+    - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
+  requires:
+    - pip
 
 about:
-  home: https://hstspreload.org/
+  home: https://hstspreload.org
+  summary: Chromium HSTS Preload list as a Python package
   license: BSD-3-Clause
   license_family: BSD
   license_file: LICENSE
-  summary: Chromium HSTS Preload list as a Python package and updated daily.
-  doc_url: https://hstspreload.org/
+  description: |
+    HTTP Strict Transport Security (HSTS) is a mechanism for websites to instruct web browsers that the site should only be accessed over HTTPS. 
+    This mechanism works by sites sending a Strict-Transport-Security HTTP response header containing the site's policy.
+
+    HSTS is supported by most major browsers. For more details on HSTS, see RFC 6797.
+  doc_url: https://hstspreload.org
+  dev_url: https://github.com/sethmlarson/hstspreload
 
 extra:
   recipe-maintainers:
